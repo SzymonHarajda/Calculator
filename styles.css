@@ -13,8 +13,8 @@ html {
 }
 .container{
   background-color: #8d99ae;
-    border: 10px solid #2b2d42;
-    border-radius: 4px;
+    border: 13px solid #2b2d42;
+    border-radius: 8px;
     display: grid;
     grid-template-columns: repeat(4, 100px);
     grid-template-rows: minmax(100px, auto) repeat(5, 80px);
@@ -22,7 +22,7 @@ html {
 }
 .display{
      grid-column: 1 / -1;
-    background-color: #edede9;
+    background-color: #ffffff;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
@@ -44,4 +44,26 @@ button{
 }
 #zero {
     grid-column: span 2;
+}
+.operand{
+  background-color: #ffffff;
+}
+.clear,
+.delete{ 
+  background-color: #4a4e69;
+}
+.sign{
+   background-color: #4a4e69;
+}
+.percent{
+   background-color: #4a4e69;
+}
+.operator{
+   background-color: #415a77;
+}
+.decimal{
+   background-color: #ffffff;
+}
+.equals{
+   background-color: #415a77;
 }
