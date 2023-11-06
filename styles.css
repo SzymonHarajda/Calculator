@@ -45,7 +45,7 @@ button{
 #zero {
     grid-column: span 2;
 }
-.operand{
+.number{
   background-color: #ffffff;
 }
 .clear,

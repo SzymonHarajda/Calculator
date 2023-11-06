@@ -1,184 +1,133 @@
-let displayValue = '0';
-let firstOperand = null;
-let secondOperand = null;
-let firstOperator = null;
-let secondOperator = null;
-let result = null;
-const buttons = document.querySelectorAll('button');
+function add(number1, number2){
+    return number1 + number2;
+} 
 
-window.addEventListener('keydown', function(e){
-    const key = document.querySelector(`button[data-key='${e.keyCode}']`);
-    key.click();
-});
+function subtract(number1, number2){
+    return number1 - number2;
+}
 
-function updateDisplay() {
-    const display = document.getElementById('display');
+
+function multiply(number1, number2){
+    return number1 * number2;
+}
+
+
+function divide(number1, number2){
+    return number1 / number2;
+}
+
+function operate(number1, operator, number2){
+    if (operator == "+"){
+        return add(number1, number2);
+    } else if (operator == "-"){
+        return subtract(number1, number2);
+    } else if (operator == "*"){
+        return multiply(number1, number2);
+    } else if (operator == "/"){ 
+        return divide(number1, number2);
+    }
+ }
+//VARIABLES
+const DEFAULT_VALUE=0;
+let displayValue=DEFAULT_VALUE;
+let num1=DEFAULT_VALUE;
+let num2;
+let operation=null;
+let resetScreen = false;
+
+//SELECTORS
+
+let display = document.querySelector('.display');
+let numbers = document.querySelectorAll('.number')
+let operators = document.querySelectorAll('.operator');
+let sign= document.querySelector(".sign")
+const clearBtn = document.querySelector('.clear');
+const deleteBtn = document.querySelector('.delete');
+const equalsBtn = document.querySelector('.equals');
+const decimalBtn = document.querySelector('#decimal');
+
+
+//EVENT LISNERS
+window.onload = () => {
     display.innerText = displayValue;
-    if(displayValue.length > 9) {
-        display.innerText = displayValue.substring(0, 9);
+}
+sign.addEventListener('click',()=>{
+    display.textContent=(-1)*display.textContent;
+})
+clearBtn.addEventListener('click', ()=> {
+    display.innerText = DEFAULT_VALUE;
+    num1=DEFAULT_VALUE;
+    num2='';
+    operation=null;
+    displayValue =DEFAULT_VALUE;
+})
+deleteBtn.addEventListener('click', ()=>{
+    display.textContent = display.textContent.toString().slice(0, -1);
+})
+equalsBtn.addEventListener('click',equal);
+decimalBtn.addEventListener('click', addDecimal);
+
+numbers.forEach(button => 
+    button.addEventListener('click', () => {
+    inputNumber(button.textContent)})
+)
+operators.forEach(button => 
+    button.addEventListener('click', () => {
+    inputOperotor(button.textContent)})
+)
+
+function updateDisplay(){
+    display.textContent = num1;
+}
+function inputNumber(number){
+    if (display.textContent ==="0"){
+        display.textContent ='';
+}
+    else if (display.textContent.length >= 12 && 
+        display.textContent !== "Don't be silly")
+        return;
+    else if (operation!==null && resetScreen){
+        display.textContent ='';
+        resetScreen=false;
     }
+    
+    display.textContent +=number; 
+    
 }
-  
-updateDisplay();
-
-function clickButton() {
-    for(let i = 0; i < buttons.length; i++) {
-        buttons[i].addEventListener('click', function() {
-            if(buttons[i].classList.contains('operand')) {
-                inputOperand(buttons[i].value);
-                updateDisplay();
-            } else if(buttons[i].classList.contains('operator')) {
-                inputOperator(buttons[i].value);
-            } else if(buttons[i].classList.contains('equals')) {
-                inputEquals();
-                updateDisplay();
-            } else if(buttons[i].classList.contains('decimal')) {
-                inputDecimal(buttons[i].value);
-                updateDisplay();
-            } else if(buttons[i].classList.contains('percent')) {
-                inputPercent(displayValue);
-                updateDisplay();
-            } else if(buttons[i].classList.contains('sign')) {
-                inputSign(displayValue);
-                updateDisplay();
-            } else if(buttons[i].classList.contains('clear'))
-                clearDisplay();
-                updateDisplay();
-        }
-    )}
+function inputOperotor(operator){
+if (operation!==null){
+    equal();
+}
+    num1 = display.textContent;
+    operation = operator;
+    resetScreen=true;
 }
 
-clickButton();
-
-function inputOperand(operand) {
-    if(firstOperator === null) {
-        if(displayValue === '0' || displayValue === 0) {
-            //1st click - handles first operand input
-            displayValue = operand;
-        } else if(displayValue === firstOperand) {
-            //starts new operation after inputEquals()
-            displayValue = operand;
-        } else {
-            displayValue += operand;
-        }
-    } else {
-        //3rd/5th click - inputs to secondOperand
-        if(displayValue === firstOperand) {
-            displayValue = operand;
-        } else {
-            displayValue += operand;
-        }
+function equal(){
+    if(operation ==='/' && display.textContent === "0"){
+        display.textContent="Don't be silly";
+        num1=DEFAULT_VALUE;
+        operation=null;
+        num2=0;
+        return;
     }
+    else if(operation==null)return;
+    num2=display.textContent;
+    display.textContent=roundNumber(operate(+num1,operation,+num2));
+    operation=null;
+    resetScreen=true;
+    
 }
 
-function inputOperator(operator) {
-    if(firstOperator != null && secondOperator === null) {
-        //4th click - handles input of second operator
-        secondOperator = operator;
-        secondOperand = displayValue;
-        result = operate(Number(firstOperand), Number(secondOperand), firstOperator);
-        displayValue = roundAccurately(result, 15).toString();
-        firstOperand = displayValue;
-        result = null;
-    } else if(firstOperator != null && secondOperator != null) {
-        //6th click - new secondOperator
-        secondOperand = displayValue;
-        result = operate(Number(firstOperand), Number(secondOperand), secondOperator);
-        secondOperator = operator;
-        displayValue = roundAccurately(result, 15).toString();
-        firstOperand = displayValue;
-        result = null;
-    } else { 
-        //2nd click - handles first operator input
-        firstOperator = operator;
-        firstOperand = displayValue;
+function roundNumber (number) {
+    return Math.round(number * 1000) / 1000;
+}
+function addDecimal(){
+    if(display.textContent.includes(".")) {
+        return;
     }
+    display.textContent += ".";
 }
-
-function inputEquals() {
-    //hitting equals doesn't display undefined before operate()
-    if(firstOperator === null) {
-        displayValue = displayValue;
-    } else if(secondOperator != null) {
-        //handles final result
-        secondOperand = displayValue;
-        result = operate(Number(firstOperand), Number(secondOperand), secondOperator);
-        if(result === 'lmao') {
-            displayValue = 'lmao';
-        } else {
-            displayValue = roundAccurately(result, 15).toString();
-            firstOperand = displayValue;
-            secondOperand = null;
-            firstOperator = null;
-            secondOperator = null;
-            result = null;
-        }
-    } else {
-        //handles first operation
-        secondOperand = displayValue;
-        result = operate(Number(firstOperand), Number(secondOperand), firstOperator);
-        if(result === 'lmao') {
-            displayValue = 'lmao';
-        } else {
-            displayValue = roundAccurately(result, 15).toString();
-            firstOperand = displayValue;
-            secondOperand = null;
-            firstOperator = null;
-            secondOperator = null;
-            result = null;
-        }
-    }
-}
-
-function inputDecimal(dot) {
-    if(displayValue === firstOperand || displayValue === secondOperand) {
-        displayValue = '0';
-        displayValue += dot;
-    } else if(!displayValue.includes(dot)) {
-        displayValue += dot;
-    } 
-}
-
-function inputPercent(num) {
-    displayValue = (num/100).toString();
-}
-
-function inputSign(num) {
-    displayValue = (num * -1).toString();
-}
-
-function clearDisplay() {
-    displayValue = '0';
-    firstOperand = null;
-    secondOperand = null;
-    firstOperator = null;
-    secondOperator = null;
-    result = null;
-}
-
-function inputBackspace() {
-    if(firstOperand != null) {
-        firstOperand = null;
-        updateDisplay();
-    }
-}
-
-function operate(x, y, op) {
-    if(op === '+') {
-        return x + y;
-    } else if(op === '-') {
-        return x - y;
-    } else if(op === '*') {
-        return x * y;
-    } else if(op === '/') {
-        if(y === 0) {
-            return 'lmao';
-        } else {
-        return x / y;
-        }
-    }
-}
-
-function roundAccurately(num, places) {
-    return parseFloat(Math.round(num + 'e' + places) + 'e-' + places);
+window.onload = () => {
+    display.innerText = displayValue;
 }
